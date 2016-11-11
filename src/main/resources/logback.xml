@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Logback config file for RCSe -->
+<!-- do not modify, will be overwritten by next installation -->
+<!-- We can scan for changes in configuration file and automatically re-configure itself by setting the scan attribute -->
+	<configuration debug="true" scan="true" scanPeriod="15 seconds">
+		<!-- Logback delegates the task of writing a logging event to components -->
+		<appender name="diameter-server-app-appender"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<append>true</append>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<!-- daily rollover -->
+				<fileNamePattern>/home/sapna/workspace/TimePass/diameter/logs/%d{yyyyMMdd}_diameter-server.log.gz</fileNamePattern>
+				<maxHistory>30</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>%d{yyyyMMddHHmmss.SSS};${HOSTNAME};%C{0};;%thread;%mdc{req_id};%.-1level;%msg;%n</pattern>
+			</encoder>
+		</appender>
+		<appender name="diameter-client-app-appender"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<append>true</append>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>/home/sapna/workspace/TimePass/diameter/logs/%d{yyyyMMdd}_diameter-client.log.gz</fileNamePattern>
+				<maxHistory>30</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>%d{yyyyMMddHHmmss.SSS};${HOSTNAME};%.-1level;%msg;%n</pattern>
+			</encoder>
+		</appender>
+		<logger name="client" level="trace" additivity="false">
+			<appender-ref ref="diameter-client-app-appender"/>
+		</logger>
+		<logger name="server" level="trace" additivity="false">
+			<appender-ref ref="diameter-server-app-appender"/>
+		</logger>
+		<!-- Setting the root logger and the level -->
+		<root level="trace">
+			<appender-ref ref="diameter-server-app-appender" />
+			<appender-ref ref="diameter-client-app-appender"/>
+		</root>
+	</configuration>
