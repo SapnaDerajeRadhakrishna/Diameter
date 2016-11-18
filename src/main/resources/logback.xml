@@ -9,7 +9,7 @@
 			<append>true</append>
 			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 				<!-- daily rollover -->
-				<fileNamePattern>/home/sapna/workspace/TimePass/diameter/logs/%d{yyyyMMdd}_diameter-server.log.gz</fileNamePattern>
+				<fileNamePattern>logs/%d{yyyyMMdd}_diameter-server.log.gz</fileNamePattern>
 				<maxHistory>30</maxHistory>
 			</rollingPolicy>
 			<encoder>
@@ -20,7 +20,7 @@
 			class="ch.qos.logback.core.rolling.RollingFileAppender">
 			<append>true</append>
 			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-				<fileNamePattern>/home/sapna/workspace/TimePass/diameter/logs/%d{yyyyMMdd}_diameter-client.log.gz</fileNamePattern>
+				<fileNamePattern>logs/%d{yyyyMMdd}_diameter-client.log.gz</fileNamePattern>
 				<maxHistory>30</maxHistory>
 			</rollingPolicy>
 			<encoder>
