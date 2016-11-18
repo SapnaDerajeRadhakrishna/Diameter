@@ -1,26 +1,14 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright XXXX, Red Hat Middleware LLC, and individual contributors as indicated
- * by the @authors tag. All rights reserved.
- * See the copyright.txt in the distribution for a full listing
- * of individual contributors.
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU General Public License, v. 2.0.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License,
- * v. 2.0 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * Ref: https://github.com/RestComm/jdiameter
  */
+
 package org.maxwell.diameter.client;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.ApplicationId;
@@ -61,6 +49,8 @@ public class ExampleClient implements EventListener<Request, Answer> {
 	// our destination
 	private static final String serverHost = "127.0.0.1";
 	private static final String serverPort = "3868";
+
+	@SuppressWarnings("unused")
 	private static final String serverURI = "aaa://" + serverHost + ":" + serverPort;
 	// our realm
 	private static final String realmName = "exchange.example.org";
@@ -92,24 +82,19 @@ public class ExampleClient implements EventListener<Request, Answer> {
 	private boolean finished = false; // boolean telling if we finished our interaction
 
 	private void initStack() {
-		if (log.isInfoEnabled()) {
-			log.info("Initializing Stack...");
-		}
+		log.info("Initializing Stack...");
 		InputStream is = null;
 		try {
 			// Parse dictionary, it is used for user friendly info.
 			dictionary.parseDictionary(this.getClass().getClassLoader().getResourceAsStream(dictionaryFile));
 			log.info("AVP Dictionary successfully parsed.");
-			
-			
+
 			this.stack = new StackImpl();
 			// Parse stack configuration
 			is = this.getClass().getClassLoader().getResourceAsStream(configFile);
 			Configuration config = new XMLConfiguration(is);
 			factory = stack.init(config);
-			if (log.isInfoEnabled()) {
-				log.info("Stack Configuration successfully loaded.");
-			}
+			log.info("Stack Configuration successfully loaded.");
 			// Print info about application
 			Set<ApplicationId> appIds = stack.getMetaData().getLocalPeer().getCommonApplications();
 
@@ -131,7 +116,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 			}, this.authAppId); // passing our example app id.
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception;{}", e.getMessage());
 			if (this.stack != null) {
 				this.stack.destroy();
 			}
@@ -140,8 +125,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 				try {
 					is.close();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					log.error("IOException;{}", e1.getMessage());
 				}
 			}
 			return;
@@ -151,28 +135,20 @@ public class ExampleClient implements EventListener<Request, Answer> {
 		// ignore for now.
 		if (metaData.getStackType() != StackType.TYPE_SERVER || metaData.getMinorVersion() <= 0) {
 			stack.destroy();
-			if (log.isErrorEnabled()) {
-				log.error("Incorrect driver");
-			}
+			log.error("Incorrect driver");
 			return;
 		}
 
 		try {
-			if (log.isInfoEnabled()) {
-				log.info("Starting stack");
-			}
+			log.info("Starting stack");
 			stack.start();
-			if (log.isInfoEnabled()) {
-				log.info("Stack is running.");
-			}
+			log.info("Stack is running.");
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception;{}", e.getMessage());
 			stack.destroy();
 			return;
 		}
-		if (log.isInfoEnabled()) {
-			log.info("Stack initialization successfully completed.");
-		}
+		log.info("Stack initialization successfully completed.");
 	}
 
 	/**
@@ -189,31 +165,21 @@ public class ExampleClient implements EventListener<Request, Answer> {
 		try {
 			// wait for connection to peer
 			try {
-				Thread.currentThread().sleep(5000);
+				TimeUnit.MILLISECONDS.sleep(5000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Exception;{}", e.getMessage());
 			}
 			// do send
 			this.session = this.factory
 			        .getNewSession("BadCustomSessionId;YesWeCanPassId;" + System.currentTimeMillis());
 			sendNextRequest(EXCHANGE_TYPE_INITIAL);
-		} catch (InternalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalDiameterStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RouteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (InternalException | IllegalDiameterStateException | RouteException | OverloadException e) {
+			log.error("Exception;{}", e.getMessage());
 		}
 
 	}
 
+	@SuppressWarnings("unused")
 	private void sendNextRequest(int enumType)
 	        throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
 		Request r = this.session.createRequest(commandCode, this.authAppId, realmName);
@@ -269,20 +235,16 @@ public class ExampleClient implements EventListener<Request, Answer> {
 			}
 			switch ((int) exchangeTypeAvp.getUnsigned32()) {
 			case EXCHANGE_TYPE_INITIAL:
-				// JIC check;
 				String data = exchangeDataAvp.getUTF8String();
 				if (data.equals(TO_SEND[toSendIndex - 1])) {
-					// ok :) send next;
 					sendNextRequest(EXCHANGE_TYPE_INTERMEDIATE);
 				} else {
 					log.error("Received wrong Exchange-Data: " + data);
 				}
 				break;
 			case EXCHANGE_TYPE_INTERMEDIATE:
-				// JIC check;
 				data = exchangeDataAvp.getUTF8String();
 				if (data.equals(TO_SEND[toSendIndex - 1])) {
-					// ok :) send next;
 					sendNextRequest(EXCHANGE_TYPE_TERMINATING);
 				} else {
 					log.error("Received wrong Exchange-Data: " + data);
@@ -291,9 +253,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 			case EXCHANGE_TYPE_TERMINATING:
 				data = exchangeDataAvp.getUTF8String();
 				if (data.equals(TO_SEND[toSendIndex - 1])) {
-					// good, we reached end of FSM.
 					finished = true;
-					// release session and its resources.
 					this.session.release();
 					this.session = null;
 				} else {
@@ -304,21 +264,9 @@ public class ExampleClient implements EventListener<Request, Answer> {
 				log.error("Bad value of Exchange-Type avp: " + exchangeTypeAvp.getUnsigned32());
 				break;
 			}
-		} catch (AvpDataException e) {
-			// thrown when interpretation of byte[] fails
-			e.printStackTrace();
-		} catch (InternalException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalDiameterStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RouteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (AvpDataException | InternalException | IllegalDiameterStateException | RouteException
+		        | OverloadException e) {
+			log.error("Exception;{}", e.getMessage());
 		}
 
 	}
@@ -334,17 +282,14 @@ public class ExampleClient implements EventListener<Request, Answer> {
 	}
 
 	private void dumpMessage(Message message, boolean sending) {
-		if (log.isInfoEnabled()) {
-			log.info((sending ? "Sending " : "Received ") + (message.isRequest() ? "Request: " : "Answer: ")
-			        + message.getCommandCode() + "\nE2E:" + message.getEndToEndIdentifier() + "\nHBH:"
-			        + message.getHopByHopIdentifier() + "\nAppID:" + message.getApplicationId());
-			log.info("AVPS[" + message.getAvps().size() + "]: \n");
-			try {
-				printAvps(message.getAvps());
-			} catch (AvpDataException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		log.info((sending ? "Sending " : "Received ") + (message.isRequest() ? "Request: " : "Answer: ")
+		        + message.getCommandCode() + "\nE2E:" + message.getEndToEndIdentifier() + "\nHBH:"
+		        + message.getHopByHopIdentifier() + "\nAppID:" + message.getApplicationId());
+		log.info("AVPS[" + message.getAvps().size() + "]: \n");
+		try {
+			printAvps(message.getAvps());
+		} catch (AvpDataException e) {
+			log.error("Exception;{}", e.getMessage());
 		}
 	}
 
@@ -400,10 +345,9 @@ public class ExampleClient implements EventListener<Request, Answer> {
 
 		while (!ec.finished()) {
 			try {
-				Thread.currentThread().sleep(5000);
+				TimeUnit.MILLISECONDS.sleep(5000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Exception;{}", e.getMessage());
 			}
 		}
 	}
