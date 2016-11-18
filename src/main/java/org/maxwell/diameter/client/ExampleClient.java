@@ -65,11 +65,11 @@ public class ExampleClient implements EventListener<Request, Answer> {
 	// our realm
 	private static final String realmName = "exchange.example.org";
 	// definition of codes, IDs
-	private static final int commandCode = 686;
-	private static final long vendorID = 66666;
-	private static final long applicationID = 33333;
+	private static final int commandCode = 318;
+	private static final long vendorID = 10415;
+	private static final long applicationID = 16777251;
 	private ApplicationId authAppId = ApplicationId.createByAuthAppId(applicationID);
-	private static final int exchangeTypeCode = 888;
+	private static final int exchangeTypeCode = 263;
 	private static final int exchangeDataCode = 999;
 	// enum values for Exchange-Type AVP
 	private static final int EXCHANGE_TYPE_INITIAL = 0;
@@ -228,7 +228,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 		// on
 		// creation
 		// code , value , vendor, mandatory,protected, isOctetString
-		Avp exchengeData = requestAvps.addAvp(exchangeDataCode, TO_SEND[toSendIndex++], vendorID, true, false, false); // value
+		Avp exchangeData = requestAvps.addAvp(exchangeDataCode, TO_SEND[toSendIndex++], vendorID, true, false, false); // value
 		// is
 		// set
 		// on
@@ -249,7 +249,7 @@ public class ExampleClient implements EventListener<Request, Answer> {
 	public void receivedSuccessMessage(Request request, Answer answer) {
 		dumpMessage(answer, false);
 		if (answer.getCommandCode() != commandCode) {
-			log.error("Received bad answer: " + answer.getCommandCode());
+			log.error("Received bad answer: {}" + answer.getCommandCode());
 			return;
 		}
 		AvpSet answerAvpSet = answer.getAvps();

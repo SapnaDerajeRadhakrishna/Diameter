@@ -40,10 +40,8 @@ import org.jdiameter.api.Stack;
 import org.jdiameter.api.StackType;
 import org.jdiameter.server.impl.StackImpl;
 import org.jdiameter.server.impl.helpers.XMLConfiguration;
-
 import org.mobicents.diameter.dictionary.AvpDictionary;
 import org.mobicents.diameter.dictionary.AvpRepresentation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +56,11 @@ public class ExampleServer implements NetworkReqListener {
 	private static final String dictionaryFile = "client/dictionary.xml";
 	private static final String realmName = "exchange.example.org";
 	// Defs for our app
-	private static final int commandCode = 686;
-	private static final long vendorID = 66666;
-	private static final long applicationID = 33333;
+	private static final int commandCode = 318;
+	private static final long vendorID = 10415;
+	private static final long applicationID = 16777251;
 	private ApplicationId authAppId = ApplicationId.createByAuthAppId(applicationID);
-	private static final int exchangeTypeCode = 888;
+	private static final int exchangeTypeCode = 263;
 	private static final int exchangeDataCode = 999;
 	// enum values for Exchange-Type AVP
 	private static final int EXCHANGE_TYPE_INITIAL = 0;
@@ -275,6 +273,7 @@ public class ExampleServer implements NetworkReqListener {
 		// long so its easier
 		// to manipulate
 		try {
+			log.info("****************exchange-type********** {}",(int) exchangeTypeAvp.getUnsigned32());
 			switch ((int) exchangeTypeAvp.getUnsigned32()) {
 			case EXCHANGE_TYPE_INITIAL:
 				// JIC check;
