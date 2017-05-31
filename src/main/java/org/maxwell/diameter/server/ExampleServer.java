@@ -43,7 +43,8 @@ public class ExampleServer implements NetworkReqListener {
 	// Defs for our app
 	private static final int commandCode = 318;
 	private static final long vendorID = 10415;
-	private static final long applicationID = 16777251;
+	//private static final long applicationID = 16777251;
+	private static final long applicationID = 16777265;
 	private ApplicationId authAppId = ApplicationId.createByAuthAppId(applicationID);
 	private static final int exchangeTypeCode = 263;
 	private static final int exchangeDataCode = 999;
